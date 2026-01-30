@@ -1,0 +1,49 @@
+@import "tailwindcss";
+
+/* Tokyo Night (dark) – default */
+:root {
+  --bg: #1a1b26;
+  --surface: #24283b;
+  --border: #3b4261;
+  --text: #c0caf5;
+  --text-dim: #565f89;
+  --key: #7dcfff;
+  --string: #9ece6a;
+  --number: #ff9e64;
+  --boolean: #bb9af7;
+  --null: #f7768e;
+  --bracket: #7aa2f7;
+  --error: #f7768e;
+  --radius: 8px;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #f5f5f7;
+    --surface: #ffffff;
+    --border: #d1d5db;
+    --text: #1f2937;
+    --text-dim: #6b7280;
+    --key: #0369a1;
+    --string: #15803d;
+    --number: #c2410c;
+    --boolean: #6d28d9;
+    --null: #be123c;
+    --bracket: #2563eb;
+    --error: #be123c;
+  }
+}
+
+@layer base {
+  body {
+    font-family: "JetBrains Mono", "Fira Code", "SF Mono", Consolas, monospace;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--text);
+    background-color: var(--bg);
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}

@@ -1,6 +1,4 @@
 import { useState, useCallback } from "react";
-import "./App.css";
-import { invoke } from "@tauri-apps/api/core";
 
 type JsonValue =
   | string
@@ -23,40 +21,40 @@ function JsonNode({
 
   if (value === null) {
     return (
-      <span className="json-line">
-        {name != null && <span className="json-key">"{name}"</span>}
-        {name != null && <span className="json-colon">: </span>}
-        <span className="json-null">null</span>
+      <span className="inline">
+        {name != null && <span className="text-(--key)">"{name}"</span>}
+        {name != null && <span className="text-(--text-dim)">: </span>}
+        <span className="text-(--null)">null</span>
       </span>
     );
   }
 
   if (typeof value === "boolean") {
     return (
-      <span className="json-line">
-        {name != null && <span className="json-key">"{name}"</span>}
-        {name != null && <span className="json-colon">: </span>}
-        <span className="json-boolean">{value.toString()}</span>
+      <span className="inline">
+        {name != null && <span className="text-(--key)">"{name}"</span>}
+        {name != null && <span className="text-(--text-dim)">: </span>}
+        <span className="text-(--boolean)">{value.toString()}</span>
       </span>
     );
   }
 
   if (typeof value === "number") {
     return (
-      <span className="json-line">
-        {name != null && <span className="json-key">"{name}"</span>}
-        {name != null && <span className="json-colon">: </span>}
-        <span className="json-number">{value}</span>
+      <span className="inline">
+        {name != null && <span className="text-(--key)">"{name}"</span>}
+        {name != null && <span className="text-(--text-dim)">: </span>}
+        <span className="text-(--number)">{value}</span>
       </span>
     );
   }
 
   if (typeof value === "string") {
     return (
-      <span className="json-line">
-        {name != null && <span className="json-key">"{name}"</span>}
-        {name != null && <span className="json-colon">: </span>}
-        <span className="json-string">"{value}"</span>
+      <span className="inline">
+        {name != null && <span className="text-(--key)">"{name}"</span>}
+        {name != null && <span className="text-(--text-dim)">: </span>}
+        <span className="text-(--string)">"{value}"</span>
       </span>
     );
   }
@@ -64,34 +62,36 @@ function JsonNode({
   if (Array.isArray(value)) {
     const isEmpty = value.length === 0;
     return (
-      <div className="json-block">
+      <div className="m-0">
         <span
-          className="json-line json-toggle"
+          className="inline cursor-pointer select-none hover:opacity-90"
           onClick={() => setExpanded((e) => !e)}
         >
           {name != null && (
             <>
-              <span className="json-key">"{name}"</span>
-              <span className="json-colon">: </span>
+              <span className="text-(--key)">"{name}"</span>
+              <span className="text-(--text-dim)">: </span>
             </>
           )}
-          <span className="json-bracket">[</span>
+          <span className="text-(--bracket)">[</span>
           {!expanded && !isEmpty && (
-            <span className="json-preview">… {value.length} items</span>
+            <span className="text-(--text-dim) italic">… {value.length} items</span>
           )}
-          {!expanded && isEmpty && <span className="json-preview">empty</span>}
-          <span className="json-bracket">{expanded ? "" : "]"}</span>
+          {!expanded && isEmpty && (
+            <span className="text-(--text-dim) italic">empty</span>
+          )}
+          <span className="text-(--bracket)">{expanded ? "" : "]"}</span>
         </span>
         {expanded && (
-          <div className="json-children" style={{ paddingLeft: "1.25rem" }}>
+          <div className="border-l border-(--border) ml-1 pl-5">
             {value.map((item, i) => (
-              <div key={i} className="json-entry">
-                <span className="json-index">[{i}]</span>
+              <div key={i} className="my-0.5">
+                <span className="text-(--text-dim) mr-2">[{i}]</span>
                 <JsonNode value={item} depth={depth + 1} />
               </div>
             ))}
-            <span className="json-line">
-              <span className="json-bracket">]</span>
+            <span className="inline">
+              <span className="text-(--bracket)">]</span>
             </span>
           </div>
         )}
@@ -103,33 +103,35 @@ function JsonNode({
   const isEmpty = keys.length === 0;
 
   return (
-    <div className="json-block">
+    <div className="m-0">
       <span
-        className="json-line json-toggle"
+        className="inline cursor-pointer select-none hover:opacity-90"
         onClick={() => setExpanded((e) => !e)}
       >
         {name != null && (
           <>
-            <span className="json-key">"{name}"</span>
-            <span className="json-colon">: </span>
+            <span className="text-(--key)">"{name}"</span>
+            <span className="text-(--text-dim)">: </span>
           </>
         )}
-        <span className="json-bracket">{"{"}</span>
+        <span className="text-(--bracket)">{"{"}</span>
         {!expanded && !isEmpty && (
-          <span className="json-preview">… {keys.length} keys</span>
+          <span className="text-(--text-dim) italic">… {keys.length} keys</span>
         )}
-        {!expanded && isEmpty && <span className="json-preview">empty</span>}
-        <span className="json-bracket">{expanded ? "" : "}"}</span>
+        {!expanded && isEmpty && (
+          <span className="text-(--text-dim) italic">empty</span>
+        )}
+        <span className="text-(--bracket)">{expanded ? "" : "}"}</span>
       </span>
       {expanded && (
-        <div className="json-children" style={{ paddingLeft: "1.25rem" }}>
+        <div className="border-l border-(--border) ml-1 pl-5">
           {keys.map((k) => (
-            <div key={k} className="json-entry">
+            <div key={k} className="my-0.5">
               <JsonNode name={k} value={value[k]} depth={depth + 1} />
             </div>
           ))}
-          <span className="json-line">
-            <span className="json-bracket">{"}"}</span>
+          <span className="inline">
+            <span className="text-(--bracket)">{"}"}</span>
           </span>
         </div>
       )}
@@ -239,42 +241,62 @@ function App() {
   }, [raw]);
 
   return (
-    <main className="app">
-      <header className="header">
-        <h1>JSON Viewer</h1>
-        <p className="subtitle">Paste or type JSON, then view it as a tree.</p>
+    <main className="min-h-screen flex flex-col p-6 box-border">
+      <header className="mb-6 text-center">
+        <h1 className="m-0 mb-1 text-[1.75rem] font-semibold text-(--text)">
+          JSON Viewer
+        </h1>
+        <p className="m-0 text-(--text-dim) text-[0.9rem]">
+          Paste or type JSON, then view it as a tree.
+        </p>
       </header>
 
-      <div className="panels">
-        <section className="panel input-panel">
-          <label className="panel-label">Raw JSON</label>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1 min-h-0">
+        <section className="flex flex-col bg-(--surface) border border-(--border) rounded-lg p-4 min-h-[320px]">
+          <label className="text-xs uppercase tracking-wider text-(--text-dim) mb-2">
+            Raw JSON
+          </label>
           <textarea
-            className="json-input"
+            className="flex-1 min-h-[200px] p-3 font-inherit text-[13px] text-(--text) bg-(--bg) border border-(--border) rounded-lg resize-y mb-3 placeholder:text-(--text-dim) focus:outline-none focus:border-(--bracket)"
             value={raw}
             onChange={(e) => setRaw(e.target.value)}
             onBlur={parse}
             spellCheck={false}
             placeholder='{"example": "paste or type JSON here"}'
           />
-          <div className="btn-row">
-            <button type="button" className="btn" onClick={parse}>
+          <div className="flex gap-2 flex-wrap">
+            <button
+              type="button"
+              className="self-start py-2 px-4 font-inherit text-sm font-medium text-(--bg) bg-(--bracket) border-none rounded-lg cursor-pointer hover:brightness-110 active:brightness-95"
+              onClick={parse}
+            >
               Parse &amp; view
             </button>
-            <button type="button" className="btn btn-secondary" onClick={fixAndPrettify}>
+            <button
+              type="button"
+              className="self-start py-2 px-4 font-inherit text-sm font-medium text-(--text) bg-(--surface) border border-(--border) rounded-lg cursor-pointer hover:border-(--bracket) hover:brightness-110 active:brightness-95"
+              onClick={fixAndPrettify}
+            >
               Fix &amp; prettify
             </button>
           </div>
-          {error && <p className="error">{error}</p>}
+          {error && (
+            <p className="mt-2 text-[0.85rem] text-(--error)">{error}</p>
+          )}
         </section>
 
-        <section className="panel tree-panel">
-          <label className="panel-label">Tree view</label>
-          <div className="tree-container">
+        <section className="flex flex-col bg-(--surface) border border-(--border) rounded-lg p-4 min-h-[320px]">
+          <label className="text-xs uppercase tracking-wider text-(--text-dim) mb-2">
+            Tree view
+          </label>
+          <div className="flex-1 overflow-auto py-2">
             {parsed === null && !error && (
-              <p className="hint">Parse JSON to see the tree.</p>
+              <p className="m-0 text-(--text-dim) text-[0.9rem]">
+                Parse JSON to see the tree.
+              </p>
             )}
             {parsed !== null && (
-              <div className="json-tree">
+              <div className="whitespace-pre-wrap break-all">
                 <JsonNode value={parsed} />
               </div>
             )}
