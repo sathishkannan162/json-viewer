@@ -117,12 +117,28 @@
   cursor: pointer;
 }
 
+.btn-row {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
 .btn:hover {
   filter: brightness(1.1);
 }
 
 .btn:active {
   filter: brightness(0.95);
+}
+
+.btn-secondary {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.btn-secondary:hover {
+  border-color: var(--bracket);
 }
 
 .error {

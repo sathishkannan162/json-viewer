@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import "./App.css";
+import { invoke } from "@tauri-apps/api/core";
 
 type JsonValue =
   | string
@@ -154,6 +155,33 @@ function App() {
     }
   }, [raw]);
 
+  /** Convert single-quoted strings to double-quoted, fix trailing commas, and prettify. */
+  const fixAndPrettify = useCallback(() => {
+    setError(null);
+    let normalized = raw.trim();
+
+    // Replace single-quoted strings with double-quoted (match '...' allowing \' and \\ inside)
+    normalized = normalized.replace(/'([^'\\]|\\.)*'/g, (match) => {
+      let inner = match.slice(1, -1)
+        .replace(/\\'/g, "'")   // \' -> '
+        .replace(/\\/g, "\\\\") // \ -> \\
+        .replace(/"/g, '\\"');  // " -> \"
+      return `"${inner}"`;
+    });
+
+    // Remove trailing commas before ] or }
+    normalized = normalized.replace(/,(\s*[}\]])/g, "$1");
+
+    try {
+      const value = JSON.parse(normalized) as JsonValue;
+      setParsed(value);
+      setRaw(JSON.stringify(value, null, 2));
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Could not fix JSON");
+      setParsed(null);
+    }
+  }, [raw]);
+
   return (
     <main className="app">
       <header className="header">
@@ -172,9 +200,14 @@ function App() {
             spellCheck={false}
             placeholder='{"example": "paste or type JSON here"}'
           />
-          <button type="button" className="btn" onClick={parse}>
-            Parse &amp; view
-          </button>
+          <div className="btn-row">
+            <button type="button" className="btn" onClick={parse}>
+              Parse &amp; view
+            </button>
+            <button type="button" className="btn btn-secondary" onClick={fixAndPrettify}>
+              Fix &amp; prettify
+            </button>
+          </div>
           {error && <p className="error">{error}</p>}
         </section>
 
