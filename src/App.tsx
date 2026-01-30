@@ -155,7 +155,7 @@ function App() {
     }
   }, [raw]);
 
-  /** Convert single-quoted strings to double-quoted, fix trailing commas, and prettify. */
+  /** Convert Python dict / single-quoted JSON to valid JSON and prettify. */
   const fixAndPrettify = useCallback(() => {
     setError(null);
     let normalized = raw.trim();
@@ -168,6 +168,62 @@ function App() {
         .replace(/"/g, '\\"');  // " -> \"
       return `"${inner}"`;
     });
+
+    // Replace Python literals (None, True, False) only when not inside a double-quoted string
+    normalized = (() => {
+      let out = "";
+      let i = 0;
+      const rest = () => normalized.slice(i);
+      const restMatch = (re: RegExp) => {
+        re.lastIndex = 0;
+        const m = rest().match(re);
+        return m ? m[0] : null;
+      };
+      while (i < normalized.length) {
+        if (normalized[i] === '"') {
+          out += '"';
+          i++;
+          while (i < normalized.length) {
+            if (normalized[i] === "\\") {
+              out += normalized[i] + (normalized[i + 1] ?? "");
+              i += 2;
+              continue;
+            }
+            if (normalized[i] === '"') {
+              out += '"';
+              i++;
+              break;
+            }
+            out += normalized[i];
+            i++;
+          }
+          continue;
+        }
+        // Word-boundary check for None/True/False (not part of a longer identifier)
+        const wordBoundaryBefore = i === 0 || /[\s,:{}\[\]"]/.test(normalized[i - 1]);
+        const none = restMatch(/^None\b/);
+        const trueVal = restMatch(/^True\b/);
+        const falseVal = restMatch(/^False\b/);
+        if (wordBoundaryBefore && none) {
+          out += "null";
+          i += 4;
+          continue;
+        }
+        if (wordBoundaryBefore && trueVal) {
+          out += "true";
+          i += 4;
+          continue;
+        }
+        if (wordBoundaryBefore && falseVal) {
+          out += "false";
+          i += 5;
+          continue;
+        }
+        out += normalized[i];
+        i++;
+      }
+      return out;
+    })();
 
     // Remove trailing commas before ] or }
     normalized = normalized.replace(/,(\s*[}\]])/g, "$1");
